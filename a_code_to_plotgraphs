@@ -1,0 +1,137 @@
+import numpy as np
+import pandas as pd
+
+# Function to calculate RMSE
+def calculate_rmse(exp_shifts, pred_shifts, divisor):
+    ## Square each error
+    squared_errors = [((exp - pred)/ divisor) ** 2 for exp, pred in zip(exp_shifts, pred_shifts)]
+    ## Average the squares
+    mean_squared_error = np.mean(squared_errors)
+    ## Square the average
+    return np.sqrt(mean_squared_error) 
+
+
+    
+    
+
+# RMSE calculation for each molecule
+for molecule in unique_molecules:
+    subset = df[df["molecule_name"] == molecule]
+    
+    molecule_in_first_dataset = str(molecule)  # Convert to string for matching
+    if molecule_in_first_dataset in plot_data:
+        atom_indices_exp, errors_exp = plot_data[molecule_in_first_dataset]
+
+        # Empty values before calculating RMSE
+        exp_shifts = []
+        pred_shifts = []
+        divisors = []
+
+        for i in range(len(atom_indices_exp)):
+            # Find the matching atom in the dataframe subset
+            matching_row = subset[subset["atom_index"] == atom_indices_exp[i]]
+            if not matching_row.empty:
+                exp_shifts.append(matching_row["shift"].iloc[0])  # Corresponding experimental shift
+                pred_shifts.append(matching_row["predicted_shift"].iloc[0])  # Corresponding predicted shift
+                
+                # Determine divisor based on atom type
+                atom_type = matching_row["typestr"].iloc[0]
+                if atom_type == "C":
+                    divisors.append(200)  # Carbon
+                elif atom_type == "H":
+                    divisors.append(10)   # Hydrogen
+                else:
+                    divisors.append(1)   # Just in case
+
+        # Calculate RMSE before training (experimental)
+        rmse_before = calculate_rmse(exp_shifts, pred_shifts, np.mean(divisors))
+
+        # Calculate RMSE after training (predicted shifts from the dataframe)
+        rmse_after = np.sqrt(np.mean(subset["shift_error"]**2))
+
+        print(f"RMSE before training for molecule {molecule_in_first_dataset}: {rmse_before:.4f}")
+        print(f"RMSE after training for molecule {molecule_in_first_dataset}: {rmse_after:.4f}")
+
+        # Plotting the errors
+        plt.figure(figsize=(8, 5))
+        plt.bar(atom_indices_exp, errors_exp, color="green", alpha=0.6, label="Before Training")
+        plt.bar(subset["atom_index"], subset["shift_error"], color="red", alpha=0.6, label="After Training")
+
+        plt.xlabel("Atom Index")
+        plt.ylabel("Error (|Expected - Predicted| / Standard Conversion)")
+        plt.title(f"Error Comparison for Molecule {molecule_in_first_dataset}")
+        plt.legend()
+        plt.grid(axis="y", linestyle="--", alpha=0.5)
+        
+        plt.savefig(f"{molecule_in_first_dataset}_combined_error_plot.png")
+        plt.show()
+    else:
+        print(f"Warning: {molecule_in_first_dataset} not found in first dataset.")import numpy as np
+import pandas as pd
+
+# Function to calculate RMSE
+def calculate_rmse(exp_shifts, pred_shifts, divisor):
+    ## Square each error
+    squared_errors = [((exp - pred)/ divisor) ** 2 for exp, pred in zip(exp_shifts, pred_shifts)]
+    ## Average the squares
+    mean_squared_error = np.mean(squared_errors)
+    ## Square the average
+    return np.sqrt(mean_squared_error) 
+
+
+    
+    
+
+# RMSE calculation for each molecule
+for molecule in unique_molecules:
+    subset = df[df["molecule_name"] == molecule]
+    
+    molecule_in_first_dataset = str(molecule)  # Convert to string for matching
+    if molecule_in_first_dataset in plot_data:
+        atom_indices_exp, errors_exp = plot_data[molecule_in_first_dataset]
+
+        # Empty values before calculating RMSE
+        exp_shifts = []
+        pred_shifts = []
+        divisors = []
+
+        for i in range(len(atom_indices_exp)):
+            # Find the matching atom in the dataframe subset
+            matching_row = subset[subset["atom_index"] == atom_indices_exp[i]]
+            if not matching_row.empty:
+                exp_shifts.append(matching_row["shift"].iloc[0])  # Corresponding experimental shift
+                pred_shifts.append(matching_row["predicted_shift"].iloc[0])  # Corresponding predicted shift
+                
+                # Determine divisor based on atom type
+                atom_type = matching_row["typestr"].iloc[0]
+                if atom_type == "C":
+                    divisors.append(200)  # Carbon
+                elif atom_type == "H":
+                    divisors.append(10)   # Hydrogen
+                else:
+                    divisors.append(1)   # Just in case
+
+        # Calculate RMSE before training (experimental)
+        rmse_before = calculate_rmse(exp_shifts, pred_shifts, np.mean(divisors))
+
+        # Calculate RMSE after training (predicted shifts from the dataframe)
+        rmse_after = np.sqrt(np.mean(subset["shift_error"]**2))
+
+        print(f"RMSE before training for molecule {molecule_in_first_dataset}: {rmse_before:.4f}")
+        print(f"RMSE after training for molecule {molecule_in_first_dataset}: {rmse_after:.4f}")
+
+        # Plotting the errors
+        plt.figure(figsize=(8, 5))
+        plt.bar(atom_indices_exp, errors_exp, color="green", alpha=0.6, label="Before Training")
+        plt.bar(subset["atom_index"], subset["shift_error"], color="red", alpha=0.6, label="After Training")
+
+        plt.xlabel("Atom Index")
+        plt.ylabel("Error (|Expected - Predicted| / Standard Conversion)")
+        plt.title(f"Error Comparison for Molecule {molecule_in_first_dataset}")
+        plt.legend()
+        plt.grid(axis="y", linestyle="--", alpha=0.5)
+        
+        plt.savefig(f"{molecule_in_first_dataset}_combined_error_plot.png")
+        plt.show()
+    else:
+        print(f"Warning: {molecule_in_first_dataset} not found in first dataset.")
